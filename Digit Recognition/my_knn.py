@@ -1,12 +1,11 @@
 # encoding=utf8
-import cProfile
 import numpy as np
 import csv
 import operator
 
 
 def toInt(array):
-    """将字符串转成int"""
+    """Change the string to int"""
     array = np.mat(array)
     m, n = np.shape(array)
     newArray = np.zeros((m, n))
@@ -17,7 +16,6 @@ def toInt(array):
 
 
 def nomalizing(array):
-    """归一化"""
     m, n = np.shape(array)
     for i in xrange(m):
         for j in xrange(n):
@@ -54,84 +52,7 @@ def load_test_data():
     return nomalizing(toInt(data))
 
 
-def __cmd(a, b):
-    if a['value'] < b['value']:
-        return -1
-    elif a['value'] > b['value']:
-        return 1
-    else:
-        return 0
-
-
-def calculate_similarity(test_record, train_record):
-    """calculate the similarity of test record and the train record.
-    
-    Returns:
-        the similarity value.
-    """
-
-    value = 0
-    for i in xrange(784):
-        if test_record[i] > 0:
-            if train_record[i] > 0:
-                value += 1
-            else:
-                value -= 1
-        else:
-            if train_record[i] > 0:
-                value -= 1
-    return value
-
-
-def old_classify(k, test_record, train_data, labels):
-    """
-    :param k: 
-    :param test_record: 1 * n 
-    :param train_data: m * n
-    :param labels: m * 1
-    :return: classifiy result
-    """
-    value_list = []
-    j = 0
-    record_num = len(train_data)
-    for i in range(record_num):
-        train_record = train_data[i]
-        # print for test
-        j += 1
-        # if j % 1000 == 0:
-        #     print 'j:%d' % j
-        # print 'len value_list:%d' % len(value_list)
-        value = calculate_similarity(test_record, train_record)
-        if value <= 0:
-            continue
-        value_list.append({'value': value, 'label': labels[0][i]})
-    # print value_list
-    value_list.sort(cmp=__cmd)
-    value_list = value_list[0:k]
-    # print 'value list2:', value_list
-    label0_num = len([x for x in value_list if x['label'] == 0])
-    label1_num = len([x for x in value_list if x['label'] == 1])
-    label2_num = len([x for x in value_list if x['label'] == 2])
-    label3_num = len([x for x in value_list if x['label'] == 3])
-    label4_num = len([x for x in value_list if x['label'] == 4])
-    label5_num = len([x for x in value_list if x['label'] == 5])
-    label6_num = len([x for x in value_list if x['label'] == 6])
-    label7_num = len([x for x in value_list if x['label'] == 7])
-    label8_num = len([x for x in value_list if x['label'] == 8])
-    label9_num = len([x for x in value_list if x['label'] == 9])
-    label_num = [label0_num, label1_num, label2_num, label3_num, label4_num, label5_num, label6_num, label7_num,
-                 label8_num, label9_num]
-    max_label_num = label_num[0]
-    ret = 0
-    for i in range(1, 10):
-        if label_num[i] > max_label_num:
-            ret = i
-            max_label_num = label_num[i]
-
-    return ret
-
-
-def saveResult(result):
+def save_result(result):
     with open('result.csv', 'wb') as my_file:
         my_writer = csv.writer(my_file)
         my_writer.writerow(['ImageId', 'Label'])
@@ -178,11 +99,20 @@ def my_knn(k=10):
         i += 1
         if i % 1000 == 0:
             print '%d %% finished' % (i * 100 / m)
-        # if i == 2:
-        #     break
-    saveResult(result_list)
+    save_result(result_list)
 
 
 if __name__ == '__main__':
-    # read_train_data()
-    cProfile.run("my_knn()")
+    """This script uses KNN algorithm to solve the problem on kaggle 
+    https://www.kaggle.com/c/digit-recognizer.
+    
+    Before running this script, you should download the "test.csv" and
+    "train.csv" from https://www.kaggle.com/c/digit-recognizer, and 
+    put them in the same directory of this script. Then run
+    python my_knn.py
+     
+    Note: I run this script on my own PC(Intel(R) Core(TM) i5-2400 3.10GHz, 4GB memory), 
+    it takes about 7 hours to finish.
+    
+    """
+    my_knn()
